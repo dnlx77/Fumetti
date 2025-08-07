@@ -21,7 +21,7 @@ class CreateRelAlboAutoricopertina extends Migration
         });
 
         Schema::table('rel_albo_autoricopertina', function (Blueprint $table) {
-            $table->foreign('albo_id')->references('id')->on('albo');
+            $table->foreign('albo_id')->references('id')->on('albo')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('autore_id')->references('id')->on('autore');
         });
     }

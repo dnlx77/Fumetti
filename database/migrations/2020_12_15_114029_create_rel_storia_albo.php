@@ -22,6 +22,11 @@ class CreateRelStoriaAlbo extends Migration
 
         Schema::table('rel_storia_albo', function(Blueprint $table) {
             $table->foreign('storia_id')->references('id')->on('storia');
+            $table->foreign('albo_id')->references('id')->on('albo')->onUpdate('cascade')->onDelete('cascade');
+        });
+
+        Schema::table('rel_storia_albo', function (Blueprint $table) {
+            $table->foreign('storia_id')->references('id')->on('storia');
             $table->foreign('albo_id')->references('id')->on('albo');
         });
     }

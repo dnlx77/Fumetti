@@ -21,7 +21,7 @@ class CreateAlboLettureTable extends Migration
         });
 
         Schema::table('albo_letture', function (Blueprint $table) {
-            $table->foreign('albo_id')->references('id')->on('albo');
+            $table->foreign('albo_id')->references('id')->on('albo')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
