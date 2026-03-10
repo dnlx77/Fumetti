@@ -3,20 +3,42 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController; // <-- Nota: abbiamo aggiunto V1 qui!
+use App\Http\Controllers\Api\V1\AlboController;
+use App\Http\Controllers\Api\V1\EditoreController;
+use App\Http\Controllers\Api\V1\AutoreController;
+use App\Http\Controllers\Api\V1\StoriaController;
+use App\Http\Controllers\Api\V1\CollanaController;
+use App\Http\Controllers\Api\V1\RuoloController;
 
 // Raggruppiamo tutte le rotte sotto il prefisso "v1"
 Route::prefix('v1')->group(function () {
 
     // L'indirizzo diventerà: http://fumetti-api.locale.it/api/v1/login
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
 
     // Rotte protette dal Token
     Route::middleware('auth:sanctum')->group(function () {
+
+        Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
 
         // Qui in futuro metteremo: Route::get('/albi', [AlboController::class, 'index']);
+        Route::get('/albi', [AlboController::class, 'index']);
+        Route::post('/albi', [AlboController::class, 'store']);
+        Route::put('/albi/{id}', [AlboController::class, 'update']);
+        Route::delete('/albi/{id}', [AlboController::class, 'destroy']);
+
+        // ... rotte degli albi che avevamo già fatto ...
+
+        // I 5 CRUD completi per le tabelle satellite!
+        Route::apiResource('editori', EditoreController::class);
+        Route::apiResource('autori', AutoreController::class);
+        Route::apiResource('storie', StoriaController::class);
+        Route::apiResource('collane', CollanaController::class);
+        Route::apiResource('ruoli', RuoloController::class);
     });
 });

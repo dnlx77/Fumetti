@@ -33,12 +33,12 @@ class Albo extends Model
 
     public function storie()
     {
-        return $this->belongsToMany(Storia::class, 'rel_storia_albo');
+        return $this->belongsToMany(Storia::class, 'rel_storia_albo')->withTimestamps();
     }
 
     public function autoriCopertina()
     {
-        return $this->belongsToMany(Autore::class, 'rel_albo_autoricopertina');
+        return $this->belongsToMany(Autore::class, 'rel_albo_autoricopertina')->withTimestamps();
     }
 
     public function dateLettura()

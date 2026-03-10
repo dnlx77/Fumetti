@@ -12,7 +12,7 @@ class Autore extends Model
     // Relazione standard
     public function storie()
     {
-        return $this->belongsToMany(Storia::class, 'rel_storia_autore_ruolo');
+        return $this->belongsToMany(Storia::class, 'rel_storia_autore_ruolo')->withTimestamps();
     }
 
     public function scopeAutoreSearch($query, $cerca_per, $cerca, $tipo_ricerca)

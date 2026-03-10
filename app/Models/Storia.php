@@ -11,12 +11,12 @@ class Storia extends Model
 
     public function albi()
     {
-        return $this->belongsToMany(Albo::class, 'rel_storia_albo');
+        return $this->belongsToMany(Albo::class, 'rel_storia_albo')->withTimestamps();;
     }
 
     public function autori()
     {
-        return $this->belongsToMany(Autore::class, 'rel_storia_autore_ruolo');
+        return $this->belongsToMany(Autore::class, 'rel_storia_autore_ruolo')->withTimestamps();;
     }
 
     public function dateLettura()

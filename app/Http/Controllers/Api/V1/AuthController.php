@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -42,5 +44,49 @@ class AuthController extends Controller
             'success' => false,
             'message' => 'Email o password non validi'
         ], 401); // 401 significa "Non autorizzato"
+    }
+
+    public function register(Request $request)
+    {
+        // 1. Controlliamo che i dati in arrivo siano corretti
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users', // unique verifica che non esista già!
+            // La regola "confirmed" in Laravel cerca automaticamente un campo chiamato "password_confirmation". 
+            // Magia! È esattamente quello che gli spediamo da Angular.
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        // Se la validazione fallisce, restituiamo un errore 422 con i dettagli
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // 2. Creiamo l'utente nel Database (criptando la password!)
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // 3. Creiamo il Token Sanctum per questo nuovo utente
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // 4. Rispondiamo ad Angular dando il benvenuto e fornendo il Token
+        return response()->json([
+            'message' => 'Utente registrato con successo!',
+            'user' => $user,
+            'token' => $token // Angular si aspetta esattamente questa chiave!
+        ], 201); // 201 significa "Creato con successo"
+    }
+
+    public function logout(Request $request)
+    {
+        // Prende l'utente autenticato e distrugge il token esatto che sta usando ora
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout effettuato con successo. Token distrutto!'
+        ]);
     }
 }
