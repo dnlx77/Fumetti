@@ -10,7 +10,19 @@ class StoriaController extends Controller
 {
     public function index()
     {
-        return response()->json(['success' => true, 'dati' => Storia::orderBy('nome')->paginate(15)]);
+        return response()->json([
+            'success' => true,
+            'dati' => Storia::orderBy('nome')
+                ->with(['autori'])  // ← aggiungere questo
+                ->paginate(50)
+        ]);
+    }
+
+    public function lista()
+    {
+        // Estraiamo solo ID e Nome, ordinati alfabeticamente. Leggerissimo!
+        $dati = \App\Models\Storia::select('id', 'nome')->orderBy('nome')->get();
+        return response()->json(['dati' => $dati]);
     }
 
     public function store(Request $request)
@@ -77,12 +89,7 @@ class StoriaController extends Controller
     {
         // 1. Gestione Letture (date) collegate all'utente
         if ($request->has('date_lettura')) {
-            // Cancelliamo solo le vecchie letture di QUESTO utente per QUESTA storia
-            \Illuminate\Support\Facades\DB::table('storia_letture')
-                ->where('storia_id', $storiaId)
-                ->where('user_id', $request->user()->id)
-                ->delete();
-
+    
             $nuoveLetture = [];
             foreach ($request->input('date_lettura', []) as $data) {
                 $nuoveLetture[] = [
@@ -94,7 +101,7 @@ class StoriaController extends Controller
                 ];
             }
             if (!empty($nuoveLetture)) {
-                \Illuminate\Support\Facades\DB::table('storia_letture')->insert($nuoveLetture);
+                \Illuminate\Support\Facades\DB::table('storia_letture')->insertOrIgnore($nuoveLetture);
             }
         }
 

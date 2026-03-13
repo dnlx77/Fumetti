@@ -19,7 +19,7 @@ class AlboController extends Controller
         // 2. Cerchiamo nel database SOLO gli albi che hanno il suo user_id.
         // Usiamo "with" per includere comodamente le informazioni su collana ed editore.
         $albi = Albo::where('user_id', $user->id)
-            ->with(['collana', 'editore'])
+            ->with(['collana', 'editore', 'autoriCopertina', 'storie'])
             ->paginate(50);
 
         // 3. Restituiamo il risultato formattato in JSON
@@ -38,7 +38,7 @@ class AlboController extends Controller
         $datiRicevuti = $request->validate([
             // Dati base
             'editore_id' => 'required|integer|exists:editore,id',
-            'titolo' => 'required|string|max:511',
+            'titolo' => 'nullable|string|max:511',
             'collana_id' => 'nullable|integer|exists:collana,id',
             'numero' => 'nullable|integer',
             'num_pagine' => 'nullable|integer',
@@ -95,11 +95,6 @@ class AlboController extends Controller
 
         // Gestione delle date di lettura dell'Albo collegate all'utente
         if ($request->has('date_lettura')) {
-            // Cancelliamo solo le letture di QUESTO utente per QUESTO albo
-            \Illuminate\Support\Facades\DB::table('albo_letture')
-                ->where('albo_id', $nuovoAlbo->id) // N.B: usa $albo->id nell'update!
-                ->where('user_id', $request->user()->id)
-                ->delete();
 
             $nuoveLetture = [];
             foreach ($request->input('date_lettura', []) as $data) {
@@ -112,7 +107,7 @@ class AlboController extends Controller
                 ];
             }
             if (!empty($nuoveLetture)) {
-                \Illuminate\Support\Facades\DB::table('albo_letture')->insert($nuoveLetture);
+                \Illuminate\Support\Facades\DB::table('albo_letture')->insertOrIgnore($nuoveLetture);
             }
         }
 
@@ -139,7 +134,7 @@ class AlboController extends Controller
         // 2. Validazione (uguale allo store)
         $datiRicevuti = $request->validate([
             'editore_id' => 'required|integer|exists:editore,id',
-            'titolo' => 'required|string|max:511',
+            'titolo' => 'nullable|string|max:511',
             'collana_id' => 'nullable|integer|exists:collana,id',
             'numero' => 'nullable|integer',
             'num_pagine' => 'nullable|integer',

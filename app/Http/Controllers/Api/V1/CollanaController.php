@@ -13,6 +13,13 @@ class CollanaController extends Controller
         return response()->json(['success' => true, 'dati' => Collana::orderBy('nome')->paginate(15)]);
     }
 
+    public function lista()
+    {
+        // Estraiamo solo ID e Nome, ordinati alfabeticamente. Leggerissimo!
+        $dati = \App\Models\Collana::select('id', 'nome')->orderBy('nome')->get();
+        return response()->json(['dati' => $dati]);
+    }
+
     public function store(Request $request)
     {
         $dati = $request->validate([

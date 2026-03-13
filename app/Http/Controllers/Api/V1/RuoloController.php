@@ -13,6 +13,13 @@ class RuoloController extends Controller
         return response()->json(['success' => true, 'dati' => Ruolo::orderBy('descrizione')->paginate(15)]);
     }
 
+    public function lista()
+    {
+        // Estraiamo solo ID e Nome, ordinati alfabeticamente. Leggerissimo!
+        $dati = \App\Models\Ruolo::select('id', 'descrizione')->orderBy('descrizione')->get();
+        return response()->json(['dati' => $dati]);
+    }
+
     public function store(Request $request)
     {
         $dati = $request->validate(['descrizione' => 'required|string|max:511']);

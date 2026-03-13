@@ -16,7 +16,9 @@ class Storia extends Model
 
     public function autori()
     {
-        return $this->belongsToMany(Autore::class, 'rel_storia_autore_ruolo')->withTimestamps();;
+        return $this->belongsToMany(Autore::class, 'rel_storia_autore_ruolo')
+            ->withPivot('ruolo_id')  // ← aggiungere questo
+            ->withTimestamps();
     }
 
     public function dateLettura()

@@ -17,6 +17,29 @@ class AutoreController extends Controller
         ]);
     }
 
+    public function lista()
+    {
+        // Estraiamo gli autori e li formattiamo uno per uno
+        $autori = \App\Models\Autore::all()->map(function ($autore) {
+            $nomeFormattato = $autore->nome;
+
+            if (!empty($autore->pseudonimo)) {
+                $nomeFormattato .= " '" . $autore->pseudonimo . "'";
+            }
+
+            if (!empty($autore->cognome)) {
+                $nomeFormattato .= " " . $autore->cognome;
+            }
+
+            return [
+                'id' => $autore->id,
+                'nome' => trim($nomeFormattato)
+            ];
+        })->sortBy('nome')->values();
+
+        return response()->json(['dati' => $autori]);
+    }
+
     public function store(Request $request)
     {
         $dati = $request->validate([

@@ -34,6 +34,12 @@ Route::prefix('v1')->group(function () {
 
         // ... rotte degli albi che avevamo già fatto ...
 
+        Route::get('/editori/lista', [EditoreController::class, 'lista']);
+        Route::get('/collane/lista', [CollanaController::class, 'lista']);
+        Route::get('/autori/lista', [AutoreController::class, 'lista']);
+        Route::get('/storie/lista', [StoriaController::class, 'lista']);
+        Route::get('/ruoli/lista', [RuoloController::class, 'lista']);
+
         // I 5 CRUD completi per le tabelle satellite!
         Route::apiResource('editori', EditoreController::class);
         Route::apiResource('autori', AutoreController::class);
