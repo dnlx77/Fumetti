@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\V1\AutoreController;
 use App\Http\Controllers\Api\V1\StoriaController;
 use App\Http\Controllers\Api\V1\CollanaController;
 use App\Http\Controllers\Api\V1\RuoloController;
+use App\Http\Controllers\Api\V1\AlboLettureController;
+use App\Http\Controllers\Api\V1\StoriaLettureController;
 
 // Raggruppiamo tutte le rotte sotto il prefisso "v1"
 Route::prefix('v1')->group(function () {
@@ -46,5 +48,15 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('storie', StoriaController::class);
         Route::apiResource('collane', CollanaController::class);
         Route::apiResource('ruoli', RuoloController::class);
+
+        // Letture Albi
+        Route::get('/albi/{alboId}/letture', [AlboLettureController::class, 'index']);
+        Route::post('/albi/{alboId}/letture', [AlboLettureController::class, 'store']);
+        Route::delete('/albi/{alboId}/letture/{letturaId}', [AlboLettureController::class, 'destroy']);
+
+        // Letture Storie
+        Route::get('/storie/{storiaId}/letture', [StoriaLettureController::class, 'index']);
+        Route::post('/storie/{storiaId}/letture', [StoriaLettureController::class, 'store']);
+        Route::delete('/storie/{storiaId}/letture/{letturaId}', [StoriaLettureController::class, 'destroy']);
     });
 });

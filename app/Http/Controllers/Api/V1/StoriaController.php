@@ -13,7 +13,8 @@ class StoriaController extends Controller
         return response()->json([
             'success' => true,
             'dati' => Storia::orderBy('nome')
-                ->with(['autori'])  // ← aggiungere questo
+                ->with(['autori'])
+                ->withCount(['dateLettura'])
                 ->paginate(50)
         ]);
     }

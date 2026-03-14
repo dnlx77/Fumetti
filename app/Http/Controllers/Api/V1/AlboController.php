@@ -20,6 +20,7 @@ class AlboController extends Controller
         // Usiamo "with" per includere comodamente le informazioni su collana ed editore.
         $albi = Albo::where('user_id', $user->id)
             ->with(['collana', 'editore', 'autoriCopertina', 'storie'])
+            ->withCount(['dateLettura'])
             ->paginate(50);
 
         // 3. Restituiamo il risultato formattato in JSON
