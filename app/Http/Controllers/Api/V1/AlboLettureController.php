@@ -33,16 +33,27 @@ class AlboLettureController extends Controller
             'data_lettura' => 'required|date',
         ]);
 
+        // Controlliamo se la data esiste già per questo utente/albo
+        $esisteGia = \Illuminate\Support\Facades\DB::table('albo_letture')
+            ->where('albo_id', $alboId)
+            ->where('user_id', $request->user()->id)
+            ->where('data_lettura', $dati['data_lettura'])
+            ->exists();
+
+        if ($esisteGia) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hai già registrato una lettura per questa data.'
+            ], 422);
+        }
+
         $lettura = AlboLetture::create([
             'albo_id'      => $alboId,
             'user_id'      => $request->user()->id,
             'data_lettura' => $dati['data_lettura'],
         ]);
 
-        return response()->json([
-            'success' => true,
-            'dati'    => $lettura
-        ], 201);
+        return response()->json(['success' => true, 'dati' => $lettura], 201);
     }
 
     /**
@@ -50,12 +61,11 @@ class AlboLettureController extends Controller
      */
     public function destroy(Request $request, $alboId, $letturaId)
     {
-        $lettura = AlboLetture::where('id', $letturaId)
+        \Illuminate\Support\Facades\DB::table('albo_letture')
             ->where('albo_id', $alboId)
             ->where('user_id', $request->user()->id)
-            ->firstOrFail();
-
-        $lettura->delete();
+            ->where('data_lettura', $letturaId)
+            ->delete();
 
         return response()->json([
             'success' => true,

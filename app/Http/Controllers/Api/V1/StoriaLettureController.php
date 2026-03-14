@@ -33,29 +33,39 @@ class StoriaLettureController extends Controller
             'data_lettura' => 'required|date',
         ]);
 
+        // Controlliamo se la data esiste già per questo utente/albo
+        $esisteGia = \Illuminate\Support\Facades\DB::table('storia_letture')
+            ->where('storia_id', $storiaId)
+            ->where('user_id', $request->user()->id)
+            ->where('data_lettura', $dati['data_lettura'])
+            ->exists();
+
+        if ($esisteGia) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hai già registrato una lettura per questa data.'
+            ], 422);
+        }
+
         $lettura = StoriaLetture::create([
-            'storia_id'    => $storiaId,
+            'storia_id'      => $storiaId,
             'user_id'      => $request->user()->id,
             'data_lettura' => $dati['data_lettura'],
         ]);
 
-        return response()->json([
-            'success' => true,
-            'dati'    => $lettura
-        ], 201);
+        return response()->json(['success' => true, 'dati' => $lettura], 201);
     }
-
+    
     /**
      * Elimina una singola lettura (solo se appartiene all'utente loggato)
      */
     public function destroy(Request $request, $storiaId, $letturaId)
     {
-        $lettura = StoriaLetture::where('id', $letturaId)
+        \Illuminate\Support\Facades\DB::table('storia_letture')
             ->where('storia_id', $storiaId)
             ->where('user_id', $request->user()->id)
-            ->firstOrFail();
-
-        $lettura->delete();
+            ->where('data_lettura', $letturaId)
+            ->delete();
 
         return response()->json([
             'success' => true,
