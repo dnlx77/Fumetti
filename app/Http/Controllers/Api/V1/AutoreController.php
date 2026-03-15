@@ -40,6 +40,39 @@ class AutoreController extends Controller
         return response()->json(['dati' => $autori]);
     }
 
+    public function show(Request $request, $id)
+    {
+        $autore = \App\Models\Autore::with([
+            // Storie a cui partecipa con il ruolo dal pivot
+            'storie' => function ($query) {
+                $query->withPivot('ruolo_id');
+            },
+            // Albi in cui compare come autore copertina
+            // filtrati per l'utente loggato
+            'albiCopertina' => function ($query) use ($request) {
+                $query->where('albo.user_id', $request->user()->id)
+                    ->with(['editore', 'collana']);
+            },
+        ])->findOrFail($id);
+
+        // Carichiamo le descrizioni dei ruoli in una sola query
+        $ruoli = \App\Models\Ruolo::pluck('descrizione', 'id');
+
+        // Arricchiamo ogni storia con la descrizione del ruolo
+        $autore->storie->each(function ($storia) use ($ruoli) {
+            $storia->pivot->ruolo_descrizione = $ruoli[$storia->pivot->ruolo_id] ?? null;
+        });
+
+        // Aggiungiamo i conteggi
+        $autore->totale_storie = $autore->storie->count();
+        $autore->totale_albi   = $autore->albiCopertina->count();
+
+        return response()->json([
+            'success' => true,
+            'dati'    => $autore
+        ]);
+    }
+
     public function store(Request $request)
     {
         $dati = $request->validate([
