@@ -241,4 +241,28 @@ class AlboController extends Controller
             'message' => 'Albo eliminato con successo!'
         ], 200);
     }
+
+    /**
+     * Restituisce il dettaglio completo di un singolo albo
+     */
+    public function show(Request $request, $id)
+    {
+        $albo = Albo::where('user_id', $request->user()->id)
+            ->with([
+                'editore',
+                'collana',
+                'autoriCopertina',
+                'storie',
+                'dateLettura' => function ($query) use ($request) {
+                    $query->where('user_id', $request->user()->id)
+                        ->orderBy('data_lettura', 'desc');
+                }
+            ])
+            ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'dati'    => $albo
+        ]);
+    }
 }

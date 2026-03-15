@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/albi', [AlboController::class, 'index']);
         Route::post('/albi', [AlboController::class, 'store']);
         Route::put('/albi/{id}', [AlboController::class, 'update']);
+        Route::get('/albi/{id}', [AlboController::class, 'show']);
         Route::delete('/albi/{id}', [AlboController::class, 'destroy']);
 
         // ... rotte degli albi che avevamo già fatto ...
