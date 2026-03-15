@@ -83,6 +83,37 @@ class StoriaController extends Controller
         return response()->json(['success' => true, 'message' => 'Storia eliminata con successo!']);
     }
 
+    public function show(Request $request, $id)
+    {
+        $storia = Storia::with([
+            'autori' => function ($query) {
+                $query->withPivot('ruolo_id');  // includiamo il ruolo_id dal pivot
+            },
+            'albi' => function ($query) use ($request) {
+                $query->where('albo.user_id', $request->user()->id)
+                    ->with(['editore', 'collana']);
+            },
+            'dateLettura' => function ($query) use ($request) {
+                $query->where('user_id', $request->user()->id)
+                    ->orderBy('data_lettura', 'desc');
+            }
+        ])->findOrFail($id);
+
+        // Carichiamo tutti i ruoli in un'unica query e li mappiamo per id
+        // Così evitiamo N query (una per ogni autore)
+        $ruoli = \App\Models\Ruolo::pluck('descrizione', 'id');
+
+        // Arricchiamo ogni autore con la descrizione del suo ruolo
+        $storia->autori->each(function ($autore) use ($ruoli) {
+            $autore->pivot->ruolo_descrizione = $ruoli[$autore->pivot->ruolo_id] ?? null;
+        });
+
+        return response()->json([
+            'success' => true,
+            'dati'    => $storia
+        ]);
+    }
+
     /**
      * Funzione di supporto per gestire le chiavi composte
      */
