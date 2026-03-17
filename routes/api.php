@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\RuoloController;
 use App\Http\Controllers\Api\V1\AlboLettureController;
 use App\Http\Controllers\Api\V1\StoriaLettureController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\StatisticheController;
 
 // Raggruppiamo tutte le rotte sotto il prefisso "v1"
 Route::prefix('v1')->group(function () {
@@ -65,5 +66,9 @@ Route::prefix('v1')->group(function () {
         Route::delete('/storie/{storiaId}/letture/{data_lettura}', [StoriaLettureController::class, 'destroy']);
 
         Route::get('/dashboard', [DashboardController::class, 'index']);
+
+        Route::get('/statistiche', [StatisticheController::class, 'index']);
+        Route::get('/statistiche/heatmap-albi', [StatisticheController::class, 'heatmapAlbi']);
+        Route::get('/statistiche/heatmap-storie', [StatisticheController::class, 'heatmapStorie']);
     });
 });
