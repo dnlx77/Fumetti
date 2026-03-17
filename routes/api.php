@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\AlboLettureController;
 use App\Http\Controllers\Api\V1\StoriaLettureController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\StatisticheController;
+use App\Http\Controllers\Api\V1\SearchController;
 
 // Raggruppiamo tutte le rotte sotto il prefisso "v1"
 Route::prefix('v1')->group(function () {
@@ -70,5 +71,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/statistiche', [StatisticheController::class, 'index']);
         Route::get('/statistiche/heatmap-albi', [StatisticheController::class, 'heatmapAlbi']);
         Route::get('/statistiche/heatmap-storie', [StatisticheController::class, 'heatmapStorie']);
+
+        Route::get('/search/albi',   [SearchController::class, 'albi']);
+        Route::get('/search/storie', [SearchController::class, 'storie']);
+        Route::get('/search/autori', [SearchController::class, 'autori']);
     });
 });
