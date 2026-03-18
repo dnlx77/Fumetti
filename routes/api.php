@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\StoriaLettureController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\StatisticheController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\ProfiloController;
 
 // Raggruppiamo tutte le rotte sotto il prefisso "v1"
 Route::prefix('v1')->group(function () {
@@ -30,6 +31,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
+
+        Route::get('/profilo',           [ProfiloController::class, 'show']);
+        Route::put('/profilo/password',  [ProfiloController::class, 'cambiaPassword']);
 
         // Qui in futuro metteremo: Route::get('/albi', [AlboController::class, 'index']);
         Route::get('/albi', [AlboController::class, 'index']);
