@@ -209,6 +209,16 @@ class StatisticheController extends Controller
             ->orderByDesc('albi_count')
             ->first(['id', 'nome', 'stato']);
 
+        $alboPiuLungo = Albo::where('user_id', $userId)
+            ->whereNotNull('num_pagine')
+            ->with(['editore', 'collana'])
+            ->orderByDesc('num_pagine')
+            ->first(['id', 'titolo', 'numero', 'filename', 'num_pagine', 'editore_id', 'collana_id']);
+
+        $mediaPagine = Albo::where('user_id', $userId)
+            ->whereNotNull('num_pagine')
+            ->avg('num_pagine');
+
         return response()->json([
             'success' => true,
             'dati' => [
@@ -255,6 +265,8 @@ class StatisticheController extends Controller
                     'costo_totale_euro' => $costoTotaleEuro ? round($costoTotaleEuro, 2) : null,
                     'costo_totale_lire' => $costoTotaleLire ? round($costoTotaleLire) : null,
                     'storia_piu_lunga' => $storiaPiuLunga,
+                    'albo_piu_lungo'  => $alboPiuLungo,
+                    'media_pagine'    => $mediaPagine ? round($mediaPagine, 1) : null,
                 ],
             ]
         ]);
