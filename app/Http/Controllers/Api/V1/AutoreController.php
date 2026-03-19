@@ -8,14 +8,24 @@ use Illuminate\Http\Request;
 
 class AutoreController extends Controller
 {
-    public function index()
-    {
-        // Ordiniamo per cognome e poi per nome
-        return response()->json([
-            'success' => true,
-            'dati' => Autore::orderBy('cognome')->orderBy('nome')->paginate(15)
-        ]);
+    public function index(Request $request)
+{
+    $ordinaPer = $request->query('ordina_per', 'cognome');
+    $direzione = $request->query('direzione', 'asc');
+
+    $colonneConsentite = ['id', 'cognome', 'nome', 'pseudonimo'];
+    if (!in_array($ordinaPer, $colonneConsentite)) {
+        $ordinaPer = 'cognome';
     }
+    $direzione = $direzione === 'desc' ? 'desc' : 'asc';
+
+    return response()->json([
+        'success' => true,
+        'dati' => Autore::orderBy($ordinaPer, $direzione)
+            ->orderBy('nome', $direzione) // secondo criterio
+            ->paginate(15)
+    ]);
+}
 
     public function lista()
     {

@@ -191,6 +191,24 @@ class StatisticheController extends Controller
             )
             ->first();
 
+        $alboPiuCostoso = Albo::where('user_id', $userId)
+            ->whereNotNull('prezzo')
+            ->with(['editore', 'collana'])
+            ->orderByDesc('prezzo')
+            ->first(['id', 'titolo', 'numero', 'filename', 'prezzo', 'editore_id', 'collana_id']);
+
+        $costoTotaleEuro = Albo::where('user_id', $userId)
+            ->whereNotNull('prezzo')
+            ->sum('prezzo');
+
+        $costoTotaleLire = Albo::where('user_id', $userId)
+            ->whereNotNull('prezzo_lire')
+            ->sum('prezzo_lire');
+
+        $storiaPiuLunga = \App\Models\Storia::withCount('albi')
+            ->orderByDesc('albi_count')
+            ->first(['id', 'nome', 'stato']);
+
         return response()->json([
             'success' => true,
             'dati' => [
@@ -233,6 +251,10 @@ class StatisticheController extends Controller
                     'prezzo_medio_lire'   => $prezzoMedioLire ? round($prezzoMedioLire) : null,
                     'collana_piu_grande'  => $collanaPiuGrande,
                     'mese_piu_produttivo' => $mesepiuProduttivo,
+                    'albo_piu_costoso'  => $alboPiuCostoso,
+                    'costo_totale_euro' => $costoTotaleEuro ? round($costoTotaleEuro, 2) : null,
+                    'costo_totale_lire' => $costoTotaleLire ? round($costoTotaleLire) : null,
+                    'storia_piu_lunga' => $storiaPiuLunga,
                 ],
             ]
         ]);

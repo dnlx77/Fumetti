@@ -13,17 +13,25 @@ class AlboController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Capiamo chi ci sta facendo la richiesta grazie al Token
         $user = $request->user();
 
-        // 2. Cerchiamo nel database SOLO gli albi che hanno il suo user_id.
-        // Usiamo "with" per includere comodamente le informazioni su collana ed editore.
+        // Parametri ordinamento con valori di default
+        $ordinaPer  = $request->query('ordina_per', 'data_pubblicazione');
+        $direzione  = $request->query('direzione', 'desc');
+
+        // Whitelist colonne ordinabili per sicurezza
+        $colonneConsentite = ['id', 'titolo', 'numero', 'data_pubblicazione', 'num_pagine', 'prezzo', 'date_lettura_count'];
+        if (!in_array($ordinaPer, $colonneConsentite)) {
+            $ordinaPer = 'data_pubblicazione';
+        }
+        $direzione = $direzione === 'asc' ? 'asc' : 'desc';
+
         $albi = Albo::where('user_id', $user->id)
             ->with(['collana', 'editore', 'autoriCopertina', 'storie'])
             ->withCount(['dateLettura'])
+            ->orderBy($ordinaPer, $direzione)
             ->paginate(50);
 
-        // 3. Restituiamo il risultato formattato in JSON
         return response()->json([
             'success' => true,
             'dati' => $albi

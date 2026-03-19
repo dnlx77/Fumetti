@@ -8,9 +8,20 @@ use Illuminate\Http\Request;
 
 class EditoreController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(['success' => true, 'dati' => Editore::orderBy('nome')->paginate(15)]);
+        $ordinaPer = $request->query('ordina_per', 'nome'); // 'descrizione' per Ruolo
+        $direzione = $request->query('direzione', 'asc') === 'desc' ? 'desc' : 'asc';
+
+        $colonneConsentite = ['id', 'nome']; // ['id', 'descrizione'] per Ruolo
+        if (!in_array($ordinaPer, $colonneConsentite)) {
+            $ordinaPer = 'nome';
+        }
+
+        return response()->json([
+            'success' => true,
+            'dati' => Editore::orderBy($ordinaPer, $direzione)->paginate(15)
+        ]);
     }
 
     public function lista()

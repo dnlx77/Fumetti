@@ -23,6 +23,8 @@ class SearchController extends Controller
         $tipo   = $request->query('tipo', 'contiene');
         $letto  = $request->query('letto', 'tutti');
         $page   = $request->query('page', 1);
+        $dal    = $request->query('dal');
+        $al     = $request->query('al');
 
         $query = Albo::where('albo.user_id', $userId)
             ->with(['editore', 'collana', 'autoriCopertina', 'storie']);
@@ -65,6 +67,13 @@ class SearchController extends Controller
                     $query->where('albo.barcode', 'LIKE', $pattern);
                     break;
             }
+        }
+
+        if ($dal) {
+            $query->whereDate('data_pubblicazione', '>=', $dal);
+        }
+        if ($al) {
+            $query->whereDate('data_pubblicazione', '<=', $al);
         }
 
         $risultati = $query->select('albo.*')

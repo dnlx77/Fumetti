@@ -8,11 +8,20 @@ use Illuminate\Http\Request;
 
 class StoriaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $ordinaPer = $request->query('ordina_per', 'nome');
+        $direzione = $request->query('direzione', 'asc');
+
+        $colonneConsentite = ['id', 'nome', 'stato', 'date_lettura_count'];
+        if (!in_array($ordinaPer, $colonneConsentite)) {
+            $ordinaPer = 'nome';
+        }
+        $direzione = $direzione === 'desc' ? 'desc' : 'asc';
+
         return response()->json([
             'success' => true,
-            'dati' => Storia::orderBy('nome')
+            'dati' => Storia::orderBy($ordinaPer, $direzione)
                 ->with(['autori'])
                 ->withCount(['dateLettura'])
                 ->paginate(50)

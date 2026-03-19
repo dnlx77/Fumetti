@@ -8,9 +8,20 @@ use Illuminate\Http\Request;
 
 class RuoloController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(['success' => true, 'dati' => Ruolo::orderBy('descrizione')->paginate(15)]);
+        $ordinaPer = $request->query('ordina_per', 'descrizione'); // 'descrizione' per Ruolo
+        $direzione = $request->query('direzione', 'asc') === 'desc' ? 'desc' : 'asc';
+
+        $colonneConsentite = ['id', 'descrizione']; // ['id', 'descrizione'] per Ruolo
+        if (!in_array($ordinaPer, $colonneConsentite)) {
+            $ordinaPer = 'descrizione';
+        }
+
+        return response()->json([
+            'success' => true,
+            'dati' => Ruolo::orderBy($ordinaPer, $direzione)->paginate(15)
+        ]);
     }
 
     public function lista()

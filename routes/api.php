@@ -34,6 +34,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/profilo',           [ProfiloController::class, 'show']);
         Route::put('/profilo/password',  [ProfiloController::class, 'cambiaPassword']);
+        
 
         // Qui in futuro metteremo: Route::get('/albi', [AlboController::class, 'index']);
         Route::get('/albi', [AlboController::class, 'index']);
