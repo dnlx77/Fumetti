@@ -72,9 +72,29 @@ class AlboController extends Controller
         // 2. Gestione dell'Upload del File
         if ($request->hasFile('file_copertina')) {
             $file = $request->file('file_copertina');
+
+            // ← PRIMA i controlli di sicurezza
+            $mimeReale = $file->getMimeType();
+            $mimeConsentiti = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mimeReale, $mimeConsentiti)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tipo di file non consentito. Sono accettati solo JPEG, PNG, GIF e WebP.'
+                ], 422);
+            }
+
+            $dimensioni = @getimagesize($file->getRealPath());
+            if ($dimensioni === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Il file caricato non è un\'immagine valida.'
+                ], 422);
+            }
+
+            // ← POI salviamo su disco
             $path = $file->store('copertine', 'public');
             $datiRicevuti['filename'] = $path;
-            $datiRicevuti['mime'] = $file->getClientMimeType();
+            $datiRicevuti['mime'] = $mimeReale;  // ← usa mimeReale non getClientMimeType()
             $datiRicevuti['original_filename'] = $file->getClientOriginalName();
         }
 
@@ -162,18 +182,37 @@ class AlboController extends Controller
 
         // 3. Gestione della NUOVA immagine (se l'utente ne ha caricata una nuova)
         if ($request->hasFile('file_copertina')) {
-            // Se c'era una vecchia immagine, la cancelliamo dal disco per non occupare spazio!
+            $file = $request->file('file_copertina');
+
+            // ← PRIMA i controlli
+            $mimeReale = $file->getMimeType();
+            $mimeConsentiti = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mimeReale, $mimeConsentiti)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tipo di file non consentito.'
+                ], 422);
+            }
+
+            $dimensioni = @getimagesize($file->getRealPath());
+            if ($dimensioni === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Il file caricato non è un\'immagine valida.'
+                ], 422);
+            }
+
+            // ← POI elimina la vecchia e salva la nuova
             if ($albo->filename) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($albo->filename);
             }
 
-            // Salviamo la nuova
-            $file = $request->file('file_copertina');
             $path = $file->store('copertine', 'public');
             $datiRicevuti['filename'] = $path;
-            $datiRicevuti['mime'] = $file->getClientMimeType();
+            $datiRicevuti['mime'] = $mimeReale;
             $datiRicevuti['original_filename'] = $file->getClientOriginalName();
         }
+        
         unset($datiRicevuti['file_copertina']); // Puliamo l'array
 
         // 4. Estraiamo gli array pivot e puliamo i dati
