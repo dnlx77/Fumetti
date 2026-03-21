@@ -4,17 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAutoreTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('autore', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('cognome', 511);
             $table->string('nome', 511)->nullable();
             $table->string('pseudonimo', 511)->nullable();
@@ -24,11 +22,9 @@ class CreateAutoreTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('autore');
     }
-}
+};
