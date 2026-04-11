@@ -96,7 +96,7 @@ class StoriaController extends Controller
     {
         $storia = Storia::with([
             'autori' => function ($query) {
-                $query->withPivot('ruolo_id');  // includiamo il ruolo_id dal pivot
+                $query->withPivot('ruolo_id');
             },
             'albi' => function ($query) use ($request) {
                 $query->where('albo.user_id', $request->user()->id)
@@ -108,18 +108,58 @@ class StoriaController extends Controller
             }
         ])->findOrFail($id);
 
-        // Carichiamo tutti i ruoli in un'unica query e li mappiamo per id
-        // Così evitiamo N query (una per ogni autore)
         $ruoli = \App\Models\Ruolo::pluck('descrizione', 'id');
-
-        // Arricchiamo ogni autore con la descrizione del suo ruolo
         $storia->autori->each(function ($autore) use ($ruoli) {
             $autore->pivot->ruolo_descrizione = $ruoli[$autore->pivot->ruolo_id] ?? null;
         });
 
+        // ================================
+        // DATI GRAFICI
+        // ================================
+        $userId = $request->user()->id;
+
+        // Albi pubblicati per anno/mese (raggruppa data_pubblicazione)
+        $albbiPubblicati = \Illuminate\Support\Facades\DB::table('rel_storia_albo')
+            ->join('albo', 'rel_storia_albo.albo_id', '=', 'albo.id')
+            ->where('rel_storia_albo.storia_id', $id)
+            ->where('albo.user_id', $userId)
+            ->whereNotNull('albo.data_pubblicazione')
+            ->groupBy('anno', 'mese')
+            ->orderBy('anno')
+            ->orderBy('mese')
+            ->select(
+                \Illuminate\Support\Facades\DB::raw('YEAR(albo.data_pubblicazione) as anno'),
+                \Illuminate\Support\Facades\DB::raw('MONTH(albo.data_pubblicazione) as mese'),
+                \Illuminate\Support\Facades\DB::raw('COUNT(*) as totale')
+            )
+            ->get();
+
+        // Albi letti per anno/mese (raggruppa data_lettura)
+        $albiLetti = \Illuminate\Support\Facades\DB::table('rel_storia_albo')
+            ->join('albo', 'rel_storia_albo.albo_id', '=', 'albo.id')
+            ->join('albo_letture', function ($join) use ($userId) {
+                $join->on('albo_letture.albo_id', '=', 'albo.id')
+                    ->where('albo_letture.user_id', $userId);
+            })
+            ->where('rel_storia_albo.storia_id', $id)
+            ->where('albo.user_id', $userId)
+            ->groupBy('anno', 'mese')
+            ->orderBy('anno')
+            ->orderBy('mese')
+            ->select(
+                \Illuminate\Support\Facades\DB::raw('YEAR(albo_letture.data_lettura) as anno'),
+                \Illuminate\Support\Facades\DB::raw('MONTH(albo_letture.data_lettura) as mese'),
+                \Illuminate\Support\Facades\DB::raw('COUNT(*) as totale')
+            )
+            ->get();
+
         return response()->json([
             'success' => true,
-            'dati'    => $storia
+            'dati'    => $storia,
+            'grafici' => [
+                'albi_pubblicati' => $albbiPubblicati,
+                'albi_letti'      => $albiLetti,
+            ]
         ]);
     }
 
