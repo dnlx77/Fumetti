@@ -1,5 +1,5 @@
 window._ = require('lodash');
-
+import Popper from 'popper.js/dist/umd/popper.js';
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
@@ -9,6 +9,14 @@ window._ = require('lodash');
 window.axios = require('axios');
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+
+try {
+    window.Popper = Popper;
+    require('bootstrap');
+    require('bootstrap-datepicker');
+} catch (e) {}
+
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
@@ -26,3 +34,6 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+//import Chart from 'chart.js';
+//window.Chart = Chart;

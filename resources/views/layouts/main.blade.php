@@ -20,11 +20,15 @@
     <div class="menu-container-wrapper">
         <div class="container">
             <ul class="main-menu">
+                <li><a href="{{ route('inserisci.index') }}" >Inserisci</a></li>
                 <li><a href="{{ route('ruolo.index') }}" >Ruolo</a></li>
                 <li><a href="{{ route('autore.index') }}" >Autore</a></li>
-                <li><a href="{{ route('titolo.index') }}" >Titolo</a></li>
+                <li><a href="{{ route('storia.index') }}" >Storia</a></li>
                 <li><a href="{{ route('editore.index') }}" >Editore</a></li>
                 <li><a href="{{ route('collana.index') }}" >Collana</a></li>
+                <li><a href="{{ route('albo.index') }}" >Albo</a></li>
+                <li><a href="{{ route('statistiche.index') }}" >Statistiche</a></li>
+                <li><a href="{{ route('ricerca.index') }}" >Cerca</a></li>
             </ul>
         </div>
     </div>

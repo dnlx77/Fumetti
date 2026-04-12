@@ -4,32 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Collana;
-use App\Enums\TipoCollanaEnum;
+use App\Albo;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use BenSampo\Enum\Enum;
 
 class CollanaController extends Controller
 {
     //
     public function create(){
-        $tipo_collana_list = TipoCollanaEnum::toSelectArray();
-        return view('collana.create', [
-            'tipo_collana_list' => $tipo_collana_list
-        ]);
+        return view('collana.create');
     } 
 
     public function store(Request $request) {
         $request->validate([
             'nome' => 'required | string | max:511',
-            'num_albi' => 'required | integer',
         ]);
 
         $collana = new Collana();
         $collana->nome = $request->get('nome');
-        $collana->num_albi = $request->get('num_albi');
-        $collana->stato = $request->get('stato');
-
         $collana->save();
         return redirect(route('collana.index'))->with('success', 'La collana è stata salvata.');
     }
@@ -53,40 +45,36 @@ class CollanaController extends Controller
         }
     }
 
-    public function index(Request $request)
-    {
-        $tipo_collana_list = TipoCollanaEnum::toSelectArray();
+    public function index() {
         $collane = Collana::all();
+        $num_albi_in_collana = [];
+
+        foreach ($collane as $collana)
+            $num_albi_in_collana[$collana->id] = Albo::NumAlbiInCollana($collana->id);
 
         return view('collana.index', 
-            [ 'collane' => $collane,
-            'tipo_collana_list' => $tipo_collana_list ] 
-            );
+            [ 
+                'collane' => $collane,
+                'num_albi_in_collana' => $num_albi_in_collana
+            ]);
     }
 
-    public function edit ($id) {
-
-        $tipo_collana_list = TipoCollanaEnum::toSelectArray();
-        $collane = Collana::find($id);
-        $tipo_collana_list = TipoCollanaEnum::toSelectArray();
+    public function edit ($id_collana) {
+        $collane = Collana::find($id_collana);
         return view('collana.edit',
             [ 
                 'collane' => $collane,
-                'tipo_collana_list' => $tipo_collana_list,
             ]
         );
     } 
 
-    public function update (Request $request, $id) {
+    public function update (Request $request, $id_collana) {
         $request->validate([
             'nome' => 'required | string | max:511',
-            'num_albi' => 'required | integer',
         ]);
 
-        $collane = Collana::find($id);
+        $collane = Collana::find($id_collana);
         $collane->nome = $request->get('nome');
-        $collane->num_albi = $request->get('num_albi');
-        $collane->stato = $request->get('stato');
         $collane->save ();
         return redirect(route('collana.index'))->with('success', 'La collana è stato aggiornata.');
     }

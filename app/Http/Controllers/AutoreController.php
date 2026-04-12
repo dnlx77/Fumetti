@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Autore;
-use App\RelTitoloAutoreRuolo;
+use App\RelStoriaAutoreRuolo;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +24,7 @@ class AutoreController extends Controller
     public function autoreEliminaExecute($id_autore) {
         try {
             DB::beginTransaction();
-            RelTitoloAutoreRuolo::where('autore_id', '=', $id_autore)->delete();
+            RelStoriaAutoreRuolo::where('autore_id', '=', $id_autore)->delete();
             Autore::where('id', '=', $id_autore)->delete();
             DB::commit();
             return redirect(route('autore.index'))->with('success', 'Autore eliminato');
@@ -38,41 +38,49 @@ class AutoreController extends Controller
     public function store(Request $request) {
         $request->validate([
             'cognome' => 'required | string | max:511',
-            'nome' => 'required | string | max:511',
         ]);
 
         $autore = new Autore();
         $autore->cognome = $request->get('cognome');
         $autore->nome = $request->get('nome');
+        $autore->pseudonimo = $request->get('pseudonimo');
         $autore->save();
+        
         return redirect(route('autore.index'))->with('success', 'L\'autore è stato salvato.');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-               
-        $autore = Autore::all();
+        $order_by = 'created_at';
+        $sorted = 'desc';
+        $per_page = 10;
+        $autore = Autore::orderBy($order_by, $sorted)->paginate($per_page);
+        
 
         return view('autore.index', 
-            [ 'autore' => $autore ] 
-            );
+        [ 'autore' => $autore,
+        'cerca_in' => '',
+        'cerca_per' => '',
+        'search' => '',
+        'tipo_ricerca' => ''
+        ]);
     }
 
-    public function edit ($id) {
-        $autore = Autore::find($id);
+    public function edit ($id_autore) {
+        $autore = Autore::find($id_autore);
         return view('autore.edit',
             [ 'autore' => $autore ]);
     } 
 
-    public function update (Request $request, $id) {
+    public function update (Request $request, $id_autore) {
         $request->validate([
             'cognome' => 'required | string | max:511',
-            'nome' => 'required | string | max:511',
         ]);
 
-        $autore = Autore::find($id);
-        $autore->Cognome = $request->get('cognome');
-        $autore->Nome = $request->get('nome');
+        $autore = Autore::find($id_autore);
+        $autore->cognome = $request->get('cognome');
+        $autore->nome = $request->get('nome');
+        $autore->pseudonimo = $request->get('pseudonimo');
         $autore->save ();
         return redirect(route('autore.index'))->with('success', 'L\'autore è stato aggiornato.');
     }

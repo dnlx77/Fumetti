@@ -16,7 +16,8 @@ class CreateAutoreTable extends Migration
         Schema::create('autore', function (Blueprint $table) {
             $table->id();
             $table->string('cognome', 511);
-            $table->string('nome', 511);
+            $table->string('nome', 511)->nullable();
+            $table->string('pseudonimo', 511)->nullable();
             $table->timestamps();
         });
     }

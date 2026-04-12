@@ -16,8 +16,6 @@ class CreateCollanaTable extends Migration
         Schema::create('collana', function (Blueprint $table) {
             $table->id();
             $table->string('nome', 511);
-            $table->integer('num_albi');
-            $table->string('stato', 511);
             $table->timestamps();
         });
     }

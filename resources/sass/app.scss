@@ -1,5 +1,7 @@
 //
 @import '~bootstrap/scss/bootstrap';
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+@import '~select2/src/scss/core';
 @import 'variables';
 
 body {
@@ -32,4 +34,35 @@ a:hover {
         }
     }
     margin-bottom: 10px;
+}
+
+.immagine-tabella-wrapper {
+    max-width: 30px;
+    max-height: 30px;
+}
+
+.table-container {
+    .multi-row {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+    }
+}
+
+.albo-details {
+    .multi-row {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+    }
+}
+
+.img-thumbnail {
+    width: 150px;
+}
+
+.img-albo-details {
+    padding: auto;
+    margin: 2px;
+    border-color: aqua;
 }
