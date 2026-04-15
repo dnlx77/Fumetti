@@ -240,7 +240,7 @@ class AlboController extends Controller
         }
         catch(Exception $e){
             DB::rollBack();
-            return redirect(route('albo.index', 'all'))->with('success', 'Si è verificato un problema. L\'operazione non è stata eseguita.');
+            return redirect(route('albo.index', 'all'))->with('error', 'Si è verificato un problema. L\'operazione non è stata eseguita.');
         }
     }
 

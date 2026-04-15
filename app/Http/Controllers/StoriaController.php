@@ -48,6 +48,9 @@ class StoriaController extends Controller
     public function storiaEliminaExecute($id_storia) {
         try {
             DB::beginTransaction();
+            DB::table('rel_storia_autore_ruolo')->where('storia_id', $id_storia)->delete();
+            DB::table('rel_storia_albo')->where('storia_id', $id_storia)->delete();
+            DB::table('storia_letture')->where('storia_id', $id_storia)->delete();
             RelStoriaAutoreRuolo::where('tstoria_id', '=', $id_storia)->delete();
             Storia::where('id', '=', $id_storia)->delete();
             DB::commit();
