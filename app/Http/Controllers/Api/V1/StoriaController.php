@@ -88,7 +88,20 @@ class StoriaController extends Controller
 
     public function destroy($id)
     {
-        Storia::findOrFail($id)->delete();
+        $storia = Storia::findOrFail($id);
+
+        // Elimina prima i record nelle tabelle collegate
+        \Illuminate\Support\Facades\DB::table('rel_storia_autore_ruolo')
+            ->where('storia_id', $id)->delete();
+
+        \Illuminate\Support\Facades\DB::table('rel_storia_albo')
+            ->where('storia_id', $id)->delete();
+
+        \Illuminate\Support\Facades\DB::table('storia_letture')
+            ->where('storia_id', $id)->delete();
+
+        $storia->delete();
+
         return response()->json(['success' => true, 'message' => 'Storia eliminata con successo!']);
     }
 
