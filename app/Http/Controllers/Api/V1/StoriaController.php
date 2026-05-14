@@ -113,7 +113,8 @@ class StoriaController extends Controller
             },
             'albi' => function ($query) use ($request) {
                 $query->where('albo.user_id', $request->user()->id)
-                    ->with(['editore', 'collana']);
+                    ->with(['editore', 'collana'])
+                    ->orderBy('albo.numero');
             },
             'dateLettura' => function ($query) use ($request) {
                 $query->where('user_id', $request->user()->id)

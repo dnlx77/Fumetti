@@ -61,7 +61,8 @@ class AutoreController extends Controller
             // filtrati per l'utente loggato
             'albiCopertina' => function ($query) use ($request) {
                 $query->where('albo.user_id', $request->user()->id)
-                    ->with(['editore', 'collana']);
+                    ->with(['editore', 'collana'])
+                    ->orderBy('albo.numero');
             },
         ])->findOrFail($id);
 
