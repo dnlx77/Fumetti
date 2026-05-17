@@ -322,34 +322,38 @@ class StatisticheController extends Controller
             ->distinct()
             ->orderBy('data_lettura')
             ->pluck('data_lettura')
-            ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
-            ->unique()
+            ->map(fn($d) => \Carbon\Carbon::parse($d)->startOfDay())
+            ->unique(fn($d) => $d->toDateString())
+            ->sort()
             ->values();
 
         if ($date->isEmpty()) return ['attuale' => 0, 'massima' => 0];
 
-        $streakAttuale = 0;
-        $streakMassima = 0;
+        $oggi = \Carbon\Carbon::today();
+        $ieri = \Carbon\Carbon::yesterday();
+
+        $streaks = [];
         $corrente = 1;
-        $oggi = \Carbon\Carbon::today()->toDateString();
-        $ieri = \Carbon\Carbon::yesterday()->toDateString();
 
         for ($i = 1; $i < $date->count(); $i++) {
-            $diff = \Carbon\Carbon::parse($date[$i])->diffInDays(\Carbon\Carbon::parse($date[$i - 1]));
-            if ($diff === 1) {
+            // Usa la differenza in secondi divisa per 86400 per evitare problemi di tipo
+            $diffGiorni = intval(abs($date[$i]->diffInSeconds($date[$i - 1])) / 86400);
+            if ($diffGiorni === 1) {
                 $corrente++;
             } else {
-                $streakMassima = max($streakMassima, $corrente);
+                $streaks[] = ['lunghezza' => $corrente, 'ultima' => $date[$i - 1]];
                 $corrente = 1;
             }
         }
-        $streakMassima = max($streakMassima, $corrente);
+        $streaks[] = ['lunghezza' => $corrente, 'ultima' => $date->last()];
 
-        // Streak attuale: solo se l'ultima lettura è oggi o ieri
-        $ultimaData = $date->last();
-        if ($ultimaData === $oggi || $ultimaData === $ieri) {
-            $streakAttuale = $corrente;
-        }
+        $streakMassima = max(array_column($streaks, 'lunghezza'));
+
+        $ultimaStreak = end($streaks);
+        $streakAttuale = ($ultimaStreak['ultima']->toDateString() === $oggi->toDateString() ||
+            $ultimaStreak['ultima']->toDateString() === $ieri->toDateString())
+            ? $ultimaStreak['lunghezza']
+            : 0;
 
         return ['attuale' => $streakAttuale, 'massima' => $streakMassima];
     }
