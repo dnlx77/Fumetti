@@ -77,7 +77,7 @@ class SearchController extends Controller
         }
 
         $risultati = $query->select('albo.*')
-            ->orderBy('albo.data_pubblicazione', 'desc')
+            ->orderBy('albo.numero', 'asc')
             ->paginate(20, ['*'], 'page', $page);
 
         return response()->json([
