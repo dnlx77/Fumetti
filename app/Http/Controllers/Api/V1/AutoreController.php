@@ -53,12 +53,9 @@ class AutoreController extends Controller
     public function show(Request $request, $id)
     {
         $autore = \App\Models\Autore::with([
-            // Storie a cui partecipa con il ruolo dal pivot
             'storie' => function ($query) {
                 $query->withPivot('ruolo_id');
             },
-            // Albi in cui compare come autore copertina
-            // filtrati per l'utente loggato
             'albiCopertina' => function ($query) use ($request) {
                 $query->where('albo.user_id', $request->user()->id)
                     ->with(['editore', 'collana'])
@@ -74,9 +71,23 @@ class AutoreController extends Controller
             $storia->pivot->ruolo_descrizione = $ruoli[$storia->pivot->ruolo_id] ?? null;
         });
 
+        // Conteggio storie per ruolo (storie uniche per ogni ruolo)
+        $storiePerRuolo = $autore->storie
+            ->groupBy('pivot.ruolo_id')
+            ->map(function ($storie, $ruoloId) use ($ruoli) {
+                return [
+                    'ruolo'  => $ruoli[$ruoloId] ?? 'N/D',
+                    'totale' => $storie->unique('id')->count()
+                ];
+            })
+            ->values()
+            ->sortByDesc('totale')
+            ->values();
+
         // Aggiungiamo i conteggi
-        $autore->totale_storie = $autore->storie->count();
-        $autore->totale_albi   = $autore->albiCopertina->count();
+        $autore->totale_storie    = $autore->storie->unique('id')->count();
+        $autore->totale_albi      = $autore->albiCopertina->count();
+        $autore->storie_per_ruolo = $storiePerRuolo;
 
         return response()->json([
             'success' => true,
