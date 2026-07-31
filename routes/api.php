@@ -53,6 +53,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/storie/{id}', [StoriaController::class, 'show']);
         Route::get('/autori/{id}', [AutoreController::class, 'show']);
+        Route::get('/ruoli/{id}', [RuoloController::class, 'show']);
 
         // I 5 CRUD completi per le tabelle satellite!
         Route::apiResource('editori', EditoreController::class);

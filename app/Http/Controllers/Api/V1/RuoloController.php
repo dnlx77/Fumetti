@@ -50,4 +50,32 @@ class RuoloController extends Controller
         Ruolo::findOrFail($id)->delete();
         return response()->json(['success' => true, 'message' => 'Ruolo eliminato con successo!']);
     }
+
+    public function show(Request $request, $id)
+    {
+        $ruolo = \App\Models\Ruolo::findOrFail($id);
+
+        // Classifica autori per numero di storie con questo ruolo
+        $classifica = \Illuminate\Support\Facades\DB::table('rel_storia_autore_ruolo')
+            ->join('autore', 'rel_storia_autore_ruolo.autore_id', '=', 'autore.id')
+            ->where('rel_storia_autore_ruolo.ruolo_id', $id)
+            ->groupBy('autore.id', 'autore.cognome', 'autore.nome', 'autore.pseudonimo')
+            ->orderByDesc('totale')
+            ->select(
+                'autore.id',
+                'autore.cognome',
+                'autore.nome',
+                'autore.pseudonimo',
+                \Illuminate\Support\Facades\DB::raw('COUNT(DISTINCT rel_storia_autore_ruolo.storia_id) as totale')
+            )
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'dati' => [
+                'ruolo'      => $ruolo,
+                'classifica' => $classifica,
+            ]
+        ]);
+    }
 }
